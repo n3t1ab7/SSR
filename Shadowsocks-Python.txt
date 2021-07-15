@@ -3,8 +3,7 @@
 
 #-----------------------------------------------------------------------------------------------
 #       /etc/init.d/shadowsocks-python start | stop | restart | status
-#       python /usr/local/shadowsocks/server.py -c /etc/shadowsocks-r/config.json -d start
-
+#		/bin/python /usr/bin/ssserver -c /etc/shadowsocks-python/config.json -d start
 
 check_pid_shadowsocks_r(){
 	PID=`ps -ef |grep -v grep | grep server.py |awk '{print $2}'`
