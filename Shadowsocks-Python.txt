@@ -9,7 +9,7 @@ check_pid_shadowsocks_python(){
 	PID=`ps -ef |grep -v grep | grep ssserver |awk '{print $2}'`
 }
  
-crontab_monitor_ssr(){
+crontab_monitor_shadowsocks_python(){
 	check_pid_shadowsocks_python
 	if [[ -z ${PID} ]]; then
 		ps -ef |grep -v grep | grep ssserver |awk '{print $2}'
