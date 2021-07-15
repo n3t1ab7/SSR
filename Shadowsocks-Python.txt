@@ -1,0 +1,125 @@
+#!/bin/bash
+# echo -e "\n* * * * * /bin/bash $file/runssr.sh monitor" >> "$file/crontab.bak"
+
+#-----------------------------------------------------------------------------------------------
+#       /etc/init.d/shadowsocks-python start | stop | restart | status
+#       python /usr/local/shadowsocks/server.py -c /etc/shadowsocks-r/config.json -d start
+
+
+check_pid_shadowsocks_r(){
+	PID=`ps -ef |grep -v grep | grep server.py |awk '{print $2}'`
+}
+ 
+crontab_monitor_ssr(){
+	check_pid_shadowsocks_r
+	if [[ -z ${PID} ]]; then
+		ps -ef |grep -v grep | grep server.py |awk '{print $2}'
+		echo -e "${Error} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] 检测到 ShadowsocksR服务端 未运行 , 开始启动..." | tee -a ssserver.log
+		/etc/init.d/shadowsocks-python  restart
+		sleep 1s
+		check_pid_shadowsocks_r
+		if [[ -z ${PID} ]]; then
+			echo -e "${Error} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] ShadowsocksR服务端 启动失败..." | tee -a ssserver.log  
+		else
+			echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] ShadowsocksR服务端 启动成功..." | tee -a ssserver.log  
+		fi
+	else
+		echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] ShadowsocksR服务端 进程运行正常..." 
+	fi
+}
+
+#-----------------------------------------------------------------------------------------------
+#/usr/bin/shadowsocks-server -u -c /etc/shadowsocks-go/config.json
+
+check_pid_shadowsocks_go(){
+	PID=`ps -ef |grep -v grep | grep shadowsocks-server |awk '{print $2}'`
+}
+
+crontab_monitor_shadowsocks_go(){
+	check_pid_shadowsocks_go
+	if [[ -z ${PID} ]]; then
+		ps -ef |grep -v grep | grep shadowsocks-server |awk '{print $2}'
+		echo -e "${Error} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] 检测到 shadowsocks-server服务端 未运行 , 开始启动..." | tee -a ssserver.log
+		/etc/init.d/shadowsocks-go restart
+		sleep 1s
+		check_pid_shadowsocks_go
+		if [[ -z ${PID} ]]; then
+			echo -e "${Error} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] shadowsocks-server服务端 启动失败..." | tee -a ssserver.log 
+		else
+			echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] shadowsocks-server服务端 启动成功..." | tee -a ssserver.log 
+		fi
+	else
+		echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] shadowsocks-server服务端 进程运行正常..." 
+	fi
+}
+
+
+#-----------------------------------------------------------------------------------------------
+#/bin/python /usr/bin/ssserver -c /etc/shadowsocks-python/config.json -d start
+check_pid_shadowsocks_ssserver(){
+	PID=`ps -ef |grep -v grep | grep ssserver |awk '{print $2}'`
+}
+
+crontab_monitor_shadowsocks_ssserver(){
+	check_pid_shadowsocks_ssserver
+	if [[ -z ${PID} ]]; then
+		ps -ef |grep -v grep | grep ssserver |awk '{print $2}'
+		echo -e "${Error} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] 检测到 ssserver服务端 未运行 , 开始启动..." | tee -a ssserver.log
+		/etc/init.d/shadowsocks-r restart
+		sleep 1s
+		check_pid_shadowsocks_ssserver
+		if [[ -z ${PID} ]]; then
+			echo -e "${Error} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] ssserver服务端 启动失败..." | tee -a ssserver.log 
+		else
+			echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] ssserver服务端 启动成功..." | tee -a ssserver.log 
+		fi
+	else
+		echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] ssserver服务端 进程运行正常..." 
+	fi
+}
+
+
+
+#-----------------------------------------------------------------------------------------------
+#    /etc/init.d/shadowsocks-libev start | stop | restart | status
+
+check_pid_shadowsocks_libev(){
+	PID=`ps -ef |grep -v grep | grep ss-server |awk '{print $2}'`
+}
+
+
+crontab_monitor_shadowsocks_libev(){
+	check_pid_shadowsocks_libev
+	if [[ -z ${PID} ]]; then
+		ps -ef |grep -v grep | grep ss-server |awk '{print $2}'
+		echo -e "${Error} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] 检测到 shadowsocks-libev服务端 未运行 , 开始启动..." | tee -a ssserver.log
+		/etc/init.d/shadowsocks-libev restart
+		sleep 1s
+		check_pid_shadowsocks_libev
+		if [[ -z ${PID} ]]; then
+			echo -e "${Error} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] shadowsocks-libev服务端 启动失败..." | tee -a ssserver.log 
+		else
+			echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] shadowsocks-libev服务端 启动成功..." | tee -a ssserver.log 
+		fi
+	else
+		echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] shadowsocks-libev服务端 进程运行正常..."
+	fi
+}
+
+
+
+
+
+
+
+
+cd `dirname $0`
+python_ver=$(ls /usr/bin|grep -e "^python[23]\.[1-9]\+$"|tail -1)
+
+ulimit -n 512000
+
+crontab_monitor_ssr &&  crontab_monitor_shadowsocks_go  &&  crontab_monitor_shadowsocks_libev &&  crontab_monitor_shadowsocks_ssserver
+
+
+
+ 
